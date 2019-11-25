@@ -1,0 +1,7 @@
+---
+- name: Cloning octopus source repository for development
+  git:
+    repo: "{{ octopus_git_repository }}"
+    dest: "{{ kolla_dev_repos_directory }}/{{ project_name }}"
+    update: "{{ octopus_dev_repos_pull }}"
+    version: "{{ octopus_source_version }}"

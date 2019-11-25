@@ -240,6 +240,7 @@ cinder_api_listen_port: "{{ cinder_api_port }}"
 congress_api_port: "1789"
 
 cloudkitty_api_port: "8889"
+octopus_api_port: "9591"
 
 collectd_udp_port: "25826"
 
@@ -572,6 +573,7 @@ enable_cinder_backend_nfs: "no"
 enable_cinder_backend_zfssa_iscsi: "no"
 enable_cinder_backend_quobyte: "no"
 enable_cloudkitty: "no"
+enable_octopus: "no"
 enable_collectd: "no"
 enable_congress: "no"
 enable_cyborg: "no"
@@ -883,6 +885,16 @@ cloudkitty_collector_backend: "gnocchi"
 # Also, when using 'influxdb' as the backend, we trigger the configuration/use
 # of Cloudkitty storage backend version 2.
 cloudkitty_storage_backend: "influxdb"
+
+#######################
+# Octopus options
+#######################
+# Valid options are 'sqlalchemy' or 'influxdb'. The default value is
+# 'influxdb', which matches the default in Cloudkitty since the Stein release.
+# When the backend is "influxdb", we also enable Influxdb.
+# Also, when using 'influxdb' as the backend, we trigger the configuration/use
+# of Octopus storage backend version 2.
+octopus_storage_backend: "sqlalchemy"
 
 #######################
 # Designate options

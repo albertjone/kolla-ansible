@@ -1,0 +1,15 @@
+---
+- include_tasks: register.yml
+  when: inventory_hostname in groups['octopus-api']
+
+- include_tasks: config.yml
+  when: inventory_hostname in groups['octopus-api']
+
+- include_tasks: clone.yml
+  when: octopus_dev_mode | bool
+
+- include_tasks: bootstrap.yml
+  when: inventory_hostname in groups['octopus-api']
+
+- name: Flush handlers
+  meta: flush_handlers

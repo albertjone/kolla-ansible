@@ -1,0 +1,57 @@
+[DEFAULT]
+debug = {{ octopus_logging_debug }}
+
+log_dir = /var/log/kolla/octopus
+
+{% if service_name == 'octopus-api' %}
+# Force octopus-api.log or will use app.wsgi
+log_file = /var/log/kolla/octopus/octopus-api.log
+{% endif %}
+
+transport_url = {{ rpc_transport_url }}
+
+[database]
+connection = mysql+pymysql://{{ octopus_database_user }}:{{ octopus_database_password }}@{{ octopus_database_address }}/{{ octopus_database_name }}
+max_retries = -1
+
+[keystone_authtoken]
+www_authenticate_uri = {{ keystone_internal_url }}
+auth_url = {{ keystone_admin_url }}
+auth_type = password
+project_domain_id = {{ default_project_domain_id }}
+user_domain_id = {{ default_user_domain_id }}
+project_name = service
+username = {{ octopus_keystone_user }}
+password = {{ octopus_keystone_password }}
+region_name = {{ openstack_region_name }}
+
+memcache_security_strategy = ENCRYPT
+memcache_secret_key = {{ memcache_secret_key }}
+memcached_servers = {% for host in groups['memcached'] %}{{ 'api' | kolla_address(host) | put_address_in_context('memcache') }}:{{ memcached_port }}{% if not loop.last %},{% endif %}{% endfor %}
+
+[oslo_concurrency]
+lock_path = /var/lib/octopus/tmp
+
+{% if octopus_policy_file is defined %}
+[oslo_policy]
+policy_file = {{ octopus_policy_file }}
+{% endif %}
+
+[keystone_fetcher]
+keystone_version = 3
+auth_section = keystone_authtoken
+region_name = {{ openstack_region_name }}
+
+[api]
+host_ip = {{ api_interface_address }}
+port = {{ octopus_api_port }}
+
+[orchestrator]
+coordination_url = mysql://{{ octopus_database_user }}:{{ octopus_database_password }}@{{ octopus_database_address }}/{{ octopus_database_name }}
+max_workers = {{ openstack_service_workers }}
+
+[storage]
+backend = {{ octopus_storage_backend }}
+{% if octopus_storage_backend == 'sqlalchemy' %}
+version = 1
+{% endif %}

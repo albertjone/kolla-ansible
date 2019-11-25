@@ -1,0 +1,32 @@
+{% set octopus_cmd = 'apache2' if kolla_base_distro in ['ubuntu', 'debian'] else 'httpd' %}
+{% set octopus_dir = 'apache2/conf-enabled' if kolla_base_distro in ['ubuntu', 'debian'] else 'httpd/conf.d' %}
+{
+    "command": "{{ octopus_cmd }} -DFOREGROUND",
+    "config_files": [
+        {
+            "source": "{{ container_config_directory }}/octopus.conf",
+            "dest": "/etc/octopus/octopus.conf",
+            "owner": "octopus",
+            "perm": "0600"
+        },
+        {
+            "source": "{{ container_config_directory }}/wsgi-octopus.conf",
+            "dest": "/etc/{{ octopus_dir }}/wsgi-octopus.conf",
+            "owner": "octopus",
+            "perm": "0600"
+        }{% if octopus_policy_file is defined %},
+        {
+            "source": "{{ container_config_directory }}/{{ octopus_policy_file }}",
+            "dest": "/etc/octopus/{{ octopus_policy_file }}",
+            "owner": "octopus",
+            "perm": "0600"
+        }{% endif %}
+    ],
+    "permissions": [
+        {
+            "path": "/var/log/kolla/octopus",
+            "owner": "octopus:octopus",
+            "recurse": true
+        }
+    ]
+}
