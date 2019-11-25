@@ -282,6 +282,7 @@
     - { name: "chrony", enabled: "{{ enable_chrony }}" }
     - { name: "cinder", enabled: "{{ enable_cinder }}" }
     - { name: "cloudkitty", enabled: "{{ enable_cloudkitty }}" }
+    - { name: "octopus", enabled: "{{ enable_octopus }}" }
     - { name: "collectd", enabled: "{{ enable_collectd }}" }
     - { name: "congress", enabled: "{{ enable_congress }}" }
     - { name: "cyborg", enabled: "{{ enable_cyborg }}" }

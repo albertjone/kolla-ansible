@@ -240,6 +240,7 @@
 #enable_cinder_backend_zfssa_iscsi: "no"
 #enable_cinder_backend_quobyte: "no"
 #enable_cloudkitty: "no"
+#enable_octopus: "no"
 #enable_collectd: "no"
 #enable_congress: "no"
 #enable_cyborg: "no"

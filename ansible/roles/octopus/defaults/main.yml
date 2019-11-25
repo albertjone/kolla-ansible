@@ -1,0 +1,125 @@
+---
+project_name: "octopus"
+
+octopus_services:
+  octopus-api:
+    container_name: "octopus_api"
+    group: "octopus-api"
+    image: "{{ octopus_api_image_full }}"
+    enabled: True
+    volumes: "{{ octopus_api_default_volumes + octopus_api_extra_volumes }}"
+    dimensions: "{{ octopus_api_dimensions }}"
+    haproxy:
+      octopus_api:
+        enabled: "{{ enable_octopus }}"
+        mode: "http"
+        external: false
+        port: "{{ octopus_api_port }}"
+      octopus_api_external:
+        enabled: "{{ enable_octopus }}"
+        mode: "http"
+        external: true
+        port: "{{ octopus_api_port }}"
+
+
+####################
+# Database
+####################
+octopus_database_name: "octopus"
+octopus_database_user: "{% if use_preconfigured_databases | bool and use_common_mariadb_user | bool %}{{ database_user }}{% else %}octopus{% endif %}"
+octopus_database_address: "{{ database_address | put_address_in_context('url') }}:{{ database_port }}"
+
+
+####################
+# Docker
+####################
+octopus_install_type: "{{ kolla_install_type }}"
+octopus_tag: "{{ openstack_release }}"
+
+octopus_api_image: "{{ docker_registry ~ '/' if docker_registry else '' }}{{ docker_namespace }}/{{ kolla_base_distro }}-{{ octopus_install_type }}-octopus-api"
+octopus_api_tag: "{{ octopus_tag }}"
+octopus_api_image_full: "{{ octopus_api_image }}:{{ octopus_api_tag }}"
+
+octopus_api_dimensions: "{{ default_container_dimensions }}"
+
+octopus_api_default_volumes:
+  - "{{ node_config_directory }}/octopus-api/:{{ container_config_directory }}/:ro"
+  - "/etc/localtime:/etc/localtime:ro"
+  - "kolla_logs:/var/log/kolla/"
+  - "{{ kolla_dev_repos_directory ~ '/octopus/octopus:/var/lib/kolla/venv/lib/python2.7/site-packages/octopus' if octopus_dev_mode | bool else '' }}"
+
+octopus_extra_volumes: "{{ default_extra_volumes }}"
+octopus_api_extra_volumes: "{{ octopus_extra_volumes }}"
+
+####################
+# OpenStack
+####################
+octopus_admin_endpoint: "{{ admin_protocol }}://{{ kolla_internal_fqdn | put_address_in_context('url') }}:{{ octopus_api_port }}"
+octopus_internal_endpoint: "{{ internal_protocol }}://{{ kolla_internal_fqdn | put_address_in_context('url') }}:{{ octopus_api_port }}"
+octopus_public_endpoint: "{{ public_protocol }}://{{ kolla_external_fqdn | put_address_in_context('url') }}:{{ octopus_api_port }}"
+
+octopus_logging_debug: "{{ openstack_logging_debug }}"
+
+octopus_keystone_user: "octopus"
+
+openstack_octopus_auth: "{{ openstack_auth }}"
+
+
+####################
+# octopus
+####################
+octopus_openstack_keystone_default_role: "ratingv2"
+
+####################
+# Kolla
+####################
+octopus_git_repository: "{{ kolla_dev_repos_git }}/{{ project_name }}"
+octopus_dev_repos_pull: "{{ kolla_dev_repos_pull }}"
+octopus_dev_mode: "{{ kolla_dev_mode }}"
+octopus_source_version: "{{ kolla_source_version }}"
+
+####################
+# Storage backend
+####################
+# Valid options are 'sqlalchemy' or 'influxdb'. The default value is
+# 'influxdb', which matches the default in octopus since the Stein release.
+# When the backend is "influxdb", we also enable Influxdb.
+# Also, when using 'influxdb' as the backend, we trigger the configuration/use
+# of octopus storage backend version 2.
+octopus_storage_backend: "sqlalchemy"
+
+# InfluxDB retention policy to use (defaults to autogen).
+# octopus_influxdb_retention_policy: "autogen"
+
+# Set to true to use SSL for InfluxDB connections.
+# octopus_influxdb_use_ssl: false
+
+# Path of the CA certificate to trust for HTTPS connections.
+# octopus_influxdb_cafile: "/full/qualified/path/to/CAs/certificates"
+
+# Set to true to authorize insecure HTTPS connections to InfluxDB.
+# This means, HTTPS connections without validating the certificate used by InfluxDB
+# octopus_influxdb_insecure_connections: false
+
+octopus_influxdb_name: "octopus"
+
+####################
+# Keystone
+####################
+octopus_ks_services:
+  - name: "octopus"
+    type: "ratingv2"
+    description: "OpenStack Ratingv2"
+    endpoints:
+      - {'interface': 'admin', 'url': '{{ octopus_admin_endpoint }}'}
+      - {'interface': 'internal', 'url': '{{ octopus_internal_endpoint }}'}
+      - {'interface': 'public', 'url': '{{ octopus_public_endpoint }}'}
+
+octopus_ks_users:
+  - project: "service"
+    user: "{{ octopus_keystone_user }}"
+    password: "{{ octopus_keystone_password }}"
+    role: "admin"
+
+octopus_ks_roles:
+  - "{{ octopus_openstack_keystone_default_role }}"

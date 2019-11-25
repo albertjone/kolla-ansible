@@ -28,6 +28,7 @@
         - enable_chrony_{{ enable_chrony | bool }}
         - enable_cinder_{{ enable_cinder | bool }}
         - enable_cloudkitty_{{ enable_cloudkitty | bool }}
+        - enable_octopus_{{ enable_octopus | bool }}
         - enable_collectd_{{ enable_collectd | bool }}
         - enable_congress_{{ enable_congress | bool }}
         - enable_cyborg_{{ enable_cyborg | bool }}
@@ -151,6 +152,11 @@
             tasks_from: loadbalancer
           tags: cloudkitty
           when: enable_cloudkitty | bool
+        - include_role:
+            role: octopus
+            tasks_from: loadbalancer
+          tags: octopus
+          when: enable_octopus | bool
         - include_role:
             role: congress
             tasks_from: loadbalancer
@@ -597,6 +603,17 @@
     - { role: keystone,
         tags: keystone,
         when: enable_keystone | bool }
+
+- name: Apply role octopus
+  gather_facts: false
+  hosts:
+    - octopus-api
+    - '&enable_octopus_True'
+  serial: '{{ kolla_serial|default("0") }}'
+  roles:
+    - { role: octopus,
+        tags: octopus,
+        when: enable_octopus | bool }
 
 - name: Apply role ceph
   gather_facts: false

@@ -127,6 +127,9 @@ control
 [cloudkitty:children]
 control
 
+[octopus:children]
+control
+
 [freezer:children]
 control
 
@@ -351,6 +354,10 @@ cloudkitty
 
 [cloudkitty-processor:children]
 cloudkitty
+
+# Octopus
+[octopus-api:children]
+octopus
 
 # Freezer
 [freezer-api:children]
