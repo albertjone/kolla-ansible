@@ -1,4 +1,5 @@
 [gerrit]
-host=review.opendev.org
+host=review.sh.99cloud.net
 port=29418
 project=openstack/kolla-ansible.git
+defaultbranch=99cloud/master
